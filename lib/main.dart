@@ -34,41 +34,12 @@ class FuturePage extends StatefulWidget {
 class _FuturePageState extends State<FuturePage> {
   String result = '';
 
-  void returnFG() {
-    final futures = Future.wait<int>([
-      returnOneAsync(),
-      returnTwoAsync(),
-      returnThreeAsync(),
-    ]);
-
-    futures.then((List<int> value) {
-      int total = 0;
-      for (var element in value) {
-        total += element;
-      }
-      setState(() {
-        result = total.toString();
-      });
-    });
+  Future returnError() async {
+    await Future.delayed(const Duration(seconds: 2));
+    throw Exception('Something terrible happened!');
   }
 
-  // late Completer completer;
-
-  // Future getNumber() {
-  //   completer = Completer<int>();
-  //   calculate();
-  //   return completer.future;
-  // }
-
-  // Future calculate() async {
-  //     try {
-  //       await new Future.delayed(const Duration(seconds: 5));
-  //       completer.complete(42);
-  //       // throw Exception();
-  //     } catch (_) {
-  //       completer.completeError({});
-  //     }
-  //   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +52,18 @@ class _FuturePageState extends State<FuturePage> {
             ElevatedButton(
               child: Text('GO!'),
               onPressed: () {
-                returnFG();
+                returnError()
+                    .then((value) {
+                      setState(() {
+                        result = 'Success';
+                      });
+                    })
+                    .catchError((onError) {
+                      setState(() {
+                        result = onError.toString();
+                      });
+                    })
+                    .whenComplete(() => print('Complete'));
               },
             ),
             const Spacer(),
