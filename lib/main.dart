@@ -34,18 +34,41 @@ class FuturePage extends StatefulWidget {
 class _FuturePageState extends State<FuturePage> {
   String result = '';
 
-  late Completer completer;
-
-  Future getNumber() {
-    completer = Completer<int>();
-    calculate();
-    return completer.future;
+  void returnFG() {
+    FutureGroup<int> futureGroup = FutureGroup<int>();
+    futureGroup.add(returnOneAsync());
+    futureGroup.add(returnTwoAsync());
+    futureGroup.add(returnThreeAsync());
+    futureGroup.close();
+    
+    futureGroup.future.then((List<int> value) {
+      int total = 0;
+      for (var element in value) {
+        total += element;
+      }
+      setState(() {
+        result = total.toString();
+      });
+    });
   }
 
-  Future calculate() async {
-    await Future.delayed(const Duration(seconds: 5));
-    completer.complete(42);
-  }
+  // late Completer completer;
+
+  // Future getNumber() {
+  //   completer = Completer<int>();
+  //   calculate();
+  //   return completer.future;
+  // }
+
+  // Future calculate() async {
+  //     try {
+  //       await new Future.delayed(const Duration(seconds: 5));
+  //       completer.complete(42);
+  //       // throw Exception();
+  //     } catch (_) {
+  //       completer.completeError({});
+  //     }
+  //   }
 
   @override
   Widget build(BuildContext context) {
@@ -58,11 +81,7 @@ class _FuturePageState extends State<FuturePage> {
             ElevatedButton(
               child: Text('GO!'),
               onPressed: () {
-                getNumber().then((value) {
-                  setState(() {
-                    result = value.toString();
-                  });
-                });
+                returnFG();
               },
             ),
             const Spacer(),
